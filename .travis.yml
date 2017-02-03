@@ -4,4 +4,24 @@ node_js:
   - "4"
   - "0.12"
   - "0.10"
-  
+
+before_deploy:
+  - export _VER="${TRAVIS_TAG/#v/}"
+  - export _UPSTREAM_VER="${_VER/%-gentoo/}"
+  - export _SRC_DIR="$(pwd)"
+  - npm pack
+  - mkdir /tmp/browserify-${_UPSTREAM_VER}
+  - cd /tmp/browserify-${_UPSTREAM_VER} && npm install "${_SRC_DIR}/browserify-${_UPSTREAM_VER}.tgz" && rm -f .bin
+  - cd /tmp && tar czf "${_SRC_DIR}/browserify-build.tar.gz" browserify-${_UPSTREAM_VER} && cd "${_SRC_DIR}"
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: q7Zp3I+kLy0YUBnqJFxsi543y4X/3bKadMHuwG0ZLTlWOso+acbOThPceq0hVj9Y1RtWVbmknYj3SWlolHUaBZTKnvQ5II3Z5jw8i0XoeTXftppyHikNcACDsdDmm7RxulfUODKSaXzFiutf5rScD6ueRWdTZ7Q0Dd4DkYKiNvzYYnRA6voOyFZyaSoi/LnfRpeiseb3cSxy+o/Sb+IwhxSMAaeTJFLH8Lnv1XKu3idio1R7mKzcpk6c9lbBpCThrIUOBnTiRBdmHyCan6UngNAxKcc9WXJQ2ODr+YbyOrZzPiPzrgrjLZsYCs2rfxFPpiKqdSzurmHDoYZwFItY9N398B7FJY+ZJSsilc5SIiMU91lv6enlAfnk4AevrlH5ND+UNOhOjiGxXhOmX0nkWKuoDzJ9UNrihxOxkhV8VF/+ql+FcUrGy9wDlZPONq6vuAe3tF49rpFCt1T28FeYPB3M/o0GBvjTI4lWqxRf7QbT/lMx6+B1IduM+X7i2Eh0tK7yK5q9y+DGsZ9n4MMPCAgiSjPzTQyRyXZk+7aQUGIrmXsE/H58pRrrUTz2gc43Humjh7D9OrIEL4ISb7GXIzFEA6b66Uc6MxvJUAF0BEN06n0k0Mx8NL/hv0t70mBN3cOw+f2b9lcpVNNYhD1Js0k3NivR5R2AIZ64glrLUsU=
+  file:
+    - browserify-build.tar.gz
+  on:
+    tags: true
+    repo: elprans/node-browserify
+node: '5'
