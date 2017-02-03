@@ -21,3 +21,24 @@ matrix:
   fast_finish: true
   allow_failures:
     - node_js: "0.6"
+
+before_deploy:
+  - export _VER="${TRAVIS_TAG/#v/}"
+  - export _UPSTREAM_VER="${_VER/%-gentoo/}"
+  - export _SRC_DIR="$(pwd)"
+  - npm pack
+  - mkdir /tmp/browserify-${_UPSTREAM_VER}
+  - cd /tmp/browserify-${_UPSTREAM_VER} && npm install "${_SRC_DIR}/browserify-${_UPSTREAM_VER}.tgz" && rm -f .bin
+  - cd /tmp && tar czf "${_SRC_DIR}/browserify-build.tar.gz" browserify-${_UPSTREAM_VER} && cd "${_SRC_DIR}"
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: "Tbxw/TIXUyC9ekheu0mHhcZKpFrTXhpUV7jMYrAmZEO9TSgPzeQ6vQnlLyA/iAt3Os8yhJ7CmNLn+4LvRhj11C52w1Gy2/8HgJohTuyuHBth+8X0m5GZPKGyof3Ca0gPbLFuaL//npV7wBA09JVnTuGaZ6Wl6yF4WxuOLCijIAAgLz3lFcKj/g5FNppUbrAj13EmjtE3tSwGRnsid2UjbZA8Rzvoo2+FqvuWgep1S0N0hl+YRdbVM1fosijtgiHjbSVpKchuUX5YYzzdgY0xqzHA6mRlaItn5dCi0RAKiQfjqehv2+dj3A3CfM+OJ1iEc4d7RjPwzmTaoAVZn4DLp71Lzt/fcmck8n2zvIRDB2iSF6u4d2JpMSVfhuAIbZYNZ9eS8K63zOn4U5jMePxvAWDask7RsBDfxLZn9iXVgcJpPli6lD14MBf8zO5oLNuj2d0LPta633zlmLm3j5Okf++XJf+OSj39vG9tPhYZigb3J8YNE+5qmnjYZRIsOw7FllTrXq0CYhGiuVsBQB/J+GzDPEl2AV4eK5DYvLXzYs3bMIJ+3YvUdtBORDefToSddF+YP6TqNx3fVFbjzxtcxtyRKNlnCohMZWSWaBAuhqSo2TLBK27WqA8T5yHnhXVH/GJbEQ//eY+FvRg8ihNaN00rKa9oZGX0yX4Acv65H/U="
+  file:
+    - browserify-build.tar.gz
+  on:
+    tags: true
+    repo: elprans/node-browserify
+node: '6'
